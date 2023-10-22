@@ -1,0 +1,40 @@
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+import pdfkit 
+
+options = webdriver.ChromeOptions()
+options.add_argument('--ignore-ssl-errors')
+options.headless = True
+driver = webdriver.Chrome(options=options)
+driver.maximize_window()
+
+
+class FindArticle:
+    def __init__(self):
+        self.URL = "https://doaj.org/search/articles?ref=homepage-box&source=%7B%22query%22%3A%7B%22query_string%22%3A%7B%22query%22%3A%22generative%20ai%22%2C%22default_operator%22%3A%22AND%22%7D%7D%2C%22track_total_hits%22%3Atrue%7D"
+
+    def findArticle(self):
+            dict1 = {}
+            driver.get(self.URL)
+            driver.implicitly_wait(2)
+            articles = driver.find_elements(By.CLASS_NAME, "card")
+
+            for article in articles:
+                article.location_once_scrolled_into_view
+                title = article.find_element(By.CLASS_NAME, "label").text
+                button = article.find_element(By.PARTIAL_LINK_TEXT, "Read onli")
+                open = button.get_attribute("href")
+                dict1.update({title:open})
+            try:
+                for key, value in dict1.items():
+                    b = str(key) + ".pdf"
+                    a = str(value)
+                    pdfkit.from_url(a, b)
+            except Exception as e:
+                pass
+
+
+def main():
+    run = FindArticle()
+    run.findArticle()
+main()
